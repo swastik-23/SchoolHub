@@ -125,4 +125,3 @@ class Submission(models.Model):
     submission_date = models.DateField()
     content = models.TextField()
 
-
