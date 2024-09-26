@@ -11,18 +11,21 @@ class Admin(models.Model):
         return self.name
 
 class Account(models.Model):
-    USER_TYPE_CHOICES = [
-        ('student', 'Student'),
-        ('teacher', 'Teacher'),
-    ]
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    user_id = models.UUIDField()
-    user_type = models.CharField(max_length=10, choices=USER_TYPE_CHOICES)
-    balance = models.DecimalField(max_digits=10, decimal_places=2)
+    name = models.CharField(max_length=255)
+    email = models.EmailField(unique=True)
+    password = models.CharField(max_length=255)
+    # USER_TYPE_CHOICES = [
+    #     ('student', 'Student'),
+    #     ('teacher', 'Teacher'),
+    # ]
+    # id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    # user_id = models.UUIDField()
+    # user_type = models.CharField(max_length=10, choices=USER_TYPE_CHOICES)
+    # balance = models.DecimalField(max_digits=10, decimal_places=2)
 
 class Class(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    name = models.CharField(max_length=255)
     year = models.CharField(max_length=4)
 
     def __str__(self):
@@ -39,33 +42,30 @@ class Student(models.Model):
     def __str__(self):
         return self.name
 
+class Course(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    name = models.CharField(max_length=255)
+    code = models.CharField(max_length=50, unique=True)
+    class_id = models.ForeignKey(Class, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.name
+
 class Teacher(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=255)
     email = models.EmailField(unique=True)
     password = models.CharField(max_length=255)
-    subject = models.CharField(max_length=255)
-
-    def __str__(self):
-        return self.name
-
-class Course(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    name = models.CharField(max_length=255)
-    code = models.CharField(max_length=50, unique=True)
-    teacher_id = models.ForeignKey(Teacher, on_delete=models.CASCADE)
-    class_id = models.ForeignKey(Class, on_delete=models.CASCADE)
+    subject = models.ManyToManyField(Course)
 
     def __str__(self):
         return self.name
 
 class Routine(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    class_id = models.ForeignKey(Class, on_delete=models.CASCADE)
     course_id = models.ForeignKey(Course, on_delete=models.CASCADE)
-    day_of_week = models.CharField(max_length=9)
+   # day_of_week = models.ManyToManyField()
     start_time = models.TimeField()
-    end_time = models.TimeField()
 
 class Exam(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -86,17 +86,6 @@ class Salary(models.Model):
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     date = models.DateField()
 
-class Attendance(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    USER_TYPE_CHOICES = [
-        ('student', 'Student'),
-        ('teacher', 'Teacher'),
-    ]
-    user_id = models.UUIDField()
-    user_type = models.CharField(max_length=10, choices=USER_TYPE_CHOICES)
-    date = models.DateField()
-    status = models.CharField(max_length=10)
-
 class Fees(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     student_id = models.ForeignKey(Student, on_delete=models.CASCADE)
@@ -107,21 +96,5 @@ class Fees(models.Model):
 class Result(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     student_id = models.ForeignKey(Student, on_delete=models.CASCADE)
-    course_id = models.ForeignKey(Course, on_delete=models.CASCADE)
     total_marks = models.FloatField()
     grade = models.CharField(max_length=2)
-
-class Assignment(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    course_id = models.ForeignKey(Course, on_delete=models.CASCADE)
-    teacher_id = models.ForeignKey(Teacher, on_delete=models.CASCADE)
-    description = models.TextField()
-    due_date = models.DateField()
-
-class Submission(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    assignment_id = models.ForeignKey(Assignment, on_delete=models.CASCADE)
-    student_id = models.ForeignKey(Student, on_delete=models.CASCADE)
-    submission_date = models.DateField()
-    content = models.TextField()
-

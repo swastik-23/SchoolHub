@@ -1,3 +1,9 @@
 from django.contrib import admin
+from app.models import Admin
 
-# Register your models here.
+
+
+@admin.register(Admin)
+class AdminModel(admin.ModelAdmin):
+    list_display = ('name', 'email', )
+
